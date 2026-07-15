@@ -1,6 +1,11 @@
 const filter = document.querySelector('#team-filter');
+const apiKeyInput = document.querySelector('#api-key-input');
 const toast = document.querySelector('#toast');
 let toastTimer;
+
+if (AppState.apiKey) {
+    apiKeyInput.value = AppState.apiKey;
+}
 
 populateTeamFilter();
 renderAll();
@@ -26,7 +31,12 @@ document.querySelector('#open-pack-btn').addEventListener('click', () => {
 });
 
 document.querySelector('#connect-btn').addEventListener('click', () => {
-    showToast('La conexión real se habilitará cuando reciban las API Keys.');
+    const savedKey = setApiKey(apiKeyInput.value);
+    if (!savedKey) {
+        showToast('Pega una API Key antes de conectar.');
+        return;
+    }
+    showToast('API Key guardada. Cuando llegue el backend, ya estará lista para usar.');
 });
 
 filter.addEventListener('change', () => renderAll(filter.value));

@@ -29,8 +29,12 @@ function makeTeam(teamId, teamName, names) {
 }
 
 const AppState = {
+    apiKey: sessionStorage.getItem('apiKey') || '',
     demoEnabled: false,
     myCollection: {},
+    duplicates: [],
+    missing: [],
+    pendingOffers: [],
     lastPack: []
 };
 
@@ -53,6 +57,21 @@ function disableDemoData() {
     AppState.demoEnabled = false;
     AppState.myCollection = {};
     AppState.lastPack = [];
+}
+
+function setApiKey(apiKey) {
+    AppState.apiKey = apiKey.trim();
+    if (AppState.apiKey) {
+        sessionStorage.setItem('apiKey', AppState.apiKey);
+    } else {
+        sessionStorage.removeItem('apiKey');
+    }
+    return AppState.apiKey;
+}
+
+function clearApiKey() {
+    AppState.apiKey = '';
+    sessionStorage.removeItem('apiKey');
 }
 
 function getStickerStatus(stickerId) {
