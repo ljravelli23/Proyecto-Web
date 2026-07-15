@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <!-- Mobile-First: Esto es OBLIGATORIO para el responsive -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Álbum Mundial 2026</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Cabecera con la Autenticación (Requerimiento B) -->
+    <header>
+        <h1>⭐ Mi Álbum 2026</h1>
+        <!-- Aquí el usuario pondrá su API Key única -->
+        <div id="auth-section">
+            <input type="text" id="api-key-input" placeholder="Ingresa tu API Key">
+            <button id="connect-btn">Conectar Álbum</button>
+        </div>
+    </header>
+
+    <!-- Navegación: Cambia entre las 3 vistas obligatorias -->
+    <nav>
+        <ul>
+            <li><button data-view="album">📖 Mi Álbum</button></li>
+            <li><button data-view="packs">🎁 Abrir Sobres</button></li>
+            <li><button data-view="market">🔄 Mercado</button></li>
+        </ul>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main>
+        <!-- 1. VISTA DE ÁLBUM (Requerimiento 1) -->
+        <section id="view-album" class="view active">
+            <h2>Selecciones</h2>
+            <!-- Aquí irán los países. Usaremos <article> para cada país -->
+            <div id="album-grid">
+                <!-- Este contenedor se llenará con JS dinámicamente -->
+                <!-- Ejemplo de cómo debe ser cada elemento: -->
+                <article class="country-section">
+                    <h3>Portugal</h3>
+                    <div class="sticker-grid">
+                        <!-- <figure> para cada barajita -->
+                        <figure class="sticker owned">
+                            <img src="assets/img/escudos/por.png" alt="Escudo Portugal">
+                            <figcaption>Escudo</figcaption>
+                        </figure>
+                        <figure class="sticker missing">
+                            <!-- Silueta -->
+                            <div class="placeholder">?</div>
+                            <figcaption>Jugador 10</figcaption>
+                        </figure>
+                        <figure class="sticker duplicate">
+                            <img src="assets/img/jugadores/por-7.png" alt="CR7">
+                            <figcaption>CR7 (x2)</figcaption>
+                        </figure>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- 2. VISTA DE APERTURA DE SOBRES (Requerimiento 2) -->
+        <section id="view-packs" class="view">
+            <h2>Abrir Sobre</h2>
+            <button id="open-pack-btn">📦 Abrir Sobre (7 barajitas)</button>
+            <!-- Modal o área para la animación de apertura -->
+            <div id="pack-result" aria-live="polite">
+                <!-- Aquí se renderizan las 7 cartas con animación -->
+            </div>
+        </section>
+
+        <!-- 3. VISTA DE MERCADO (Requerimiento 3) -->
+        <section id="view-market" class="view">
+            <h2>Mercado de Intercambios</h2>
+            <div class="trade-container">
+                <!-- Panel izquierdo: MIS repetidas -->
+                <section class="trade-panel">
+                    <h4>Mis Duplicados</h4>
+                    <div id="my-duplicates-list"></div>
+                </section>
+                <!-- Panel derecho: OFERTAS entrantes (vía WebSocket) -->
+                <section class="trade-panel">
+                    <h4>Ofertas de Otros</h4>
+                    <div id="incoming-offers-list"></div>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Programación Orientada a la Web - Mundial 2026</p>
+    </footer>
+
+    <script src="js/state-manager.js"></script>
+    <script src="js/api-client.js"></script>
+    <script src="js/ui-renderer.js"></script>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
