@@ -20,14 +20,14 @@ function renderStats() {
     setText('duplicate-stat', stats.duplicates);
     setText('teams-stat', stats.teams);
     setText('progress-percent', `${percent}%`);
-    setText('progress-message', AppState.demoEnabled ? `${stats.missing} barajitas para completar la edicion demo` : 'Activa los datos demo para comenzar');
+    setText('progress-message', AppState.demoEnabled ? `${stats.missing} barajitas para completar la edición demo` : 'Activa los datos demo para comenzar');
     document.querySelector('#progress-ring').style.setProperty('--progress', percent);
 }
 
 function renderAlbum(selectedTeam) {
     const container = document.querySelector('#album-grid');
     if (!AppState.demoEnabled) {
-        container.innerHTML = `<div class="empty-state"><span class="empty-ball" aria-hidden="true">⚽</span><h3>Tu album esta esperando</h3><p>Usa “Activar datos demo” para cargar selecciones y comenzar a probar la coleccion.</p><button class="button button-primary" type="button" data-activate-demo>Activar datos demo</button></div>`;
+        container.innerHTML = `<div class="empty-state"><span class="empty-ball" aria-hidden="true">⚽</span><h3>Tu álbum está esperando</h3><p>Usa “Activar datos demo” para cargar selecciones y comenzar a probar la colección.</p><button class="button button-primary" type="button" data-activate-demo>Activar datos demo</button></div>`;
         return;
     }
 

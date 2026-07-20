@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Album virtual interactivo del Mundial 2026">
-    <title>Mi Album Mundial 2026</title>
+    <meta name="description" content="Álbum virtual interactivo del Mundial 2026">
+    <title>Mi Álbum Mundial 2026</title>
     <link rel="stylesheet" href="css/styles.css?v=3">
 </head>
 <body>
@@ -12,10 +12,10 @@
     <div class="page-glow page-glow-two" aria-hidden="true"></div>
 
     <header class="site-header">
-        <a class="brand" href="#album" aria-label="Ir a Mi Album">
+        <a class="brand" href="#album" aria-label="Ir a Mi Álbum">
             <span class="brand-mark" aria-hidden="true">⚽</span>
             <span>
-                <strong>MI ALBUM</strong>
+                <strong>MI ÁLBUM</strong>
                 <small>MUNDIAL 2026</small>
             </span>
         </a>
@@ -23,7 +23,7 @@
         <div class="header-actions">
             <div class="api-control">
                 <label class="sr-only" for="api-key-input">API Key</label>
-                <input type="password" id="api-key-input" placeholder="API Key (proximamente)" autocomplete="off">
+                <input type="password" id="api-key-input" placeholder="API Key (próximamente)" autocomplete="off">
                 <button id="connect-btn" class="button button-secondary" type="button">Conectar</button>
             </div>
             <button id="demo-toggle-btn" class="button button-demo" type="button" aria-pressed="false">
@@ -35,7 +35,7 @@
 
     <nav class="main-nav" aria-label="Secciones principales">
         <button class="nav-tab active" data-view="album" type="button" aria-selected="true">
-            <span aria-hidden="true">▦</span> Mi album
+            <span aria-hidden="true">▦</span> Mi álbum
         </button>
         <button class="nav-tab" data-view="packs" type="button" aria-selected="false">
             <span aria-hidden="true">◆</span> Abrir sobres
@@ -49,7 +49,7 @@
         <section id="view-album" class="view active" aria-labelledby="album-title">
             <div class="hero-panel">
                 <div class="hero-copy">
-                    <span class="eyebrow">TU COLECCION OFICIAL</span>
+                    <span class="eyebrow">TU COLECCIÓN OFICIAL</span>
                     <h1 id="album-title">El camino a completar<br><em>la historia.</em></h1>
                     <p>Descubre tus selecciones, encuentra las barajitas que faltan y organiza tus duplicados.</p>
                 </div>
@@ -69,7 +69,7 @@
                 </div>
             </div>
 
-            <div class="stats-grid" aria-label="Resumen de coleccion">
+            <div class="stats-grid" aria-label="Resumen de colección">
                 <article class="stat-card stat-owned">
                     <span class="stat-icon" aria-hidden="true">✓</span>
                     <div><strong id="owned-stat">0</strong><span>Obtenidas</span></div>
@@ -90,7 +90,7 @@
 
             <div class="section-heading">
                 <div>
-                    <span class="eyebrow">EDICION 2026</span>
+                    <span class="eyebrow">EDICIÓN 2026</span>
                     <h2>Selecciones</h2>
                 </div>
                 <label class="filter-control">
@@ -104,8 +104,8 @@
             <div id="album-grid" class="album-grid" aria-live="polite">
                 <div class="empty-state">
                     <span class="empty-ball" aria-hidden="true">⚽</span>
-                    <h3>Tu album esta esperando</h3>
-                    <p>Usa “Activar datos demo” para cargar selecciones y comenzar a probar la coleccion.</p>
+                    <h3>Tu álbum está esperando</h3>
+                    <p>Usa “Activar datos demo” para cargar selecciones y comenzar a probar la colección.</p>
                     <button class="button button-primary" type="button" data-activate-demo>Activar datos demo</button>
                 </div>
             </div>
@@ -114,8 +114,8 @@
         <section id="view-packs" class="view" aria-labelledby="packs-title" hidden>
             <div class="feature-header">
                 <span class="eyebrow">NUEVAS BARAJITAS</span>
-                <h1 id="packs-title">Abre tu proximo sobre</h1>
-                <p>Cada sobre demo contiene siete barajitas aleatorias y actualiza tu coleccion al instante.</p>
+                <h1 id="packs-title">Abre tu próximo sobre</h1>
+                <p>Cada sobre demo contiene siete barajitas aleatorias y actualiza tu colección al instante.</p>
             </div>
             <div class="pack-stage">
                 <div class="pack-art" aria-hidden="true">
@@ -124,8 +124,8 @@
                     <small>7 BARAJITAS</small>
                 </div>
                 <div class="pack-actions">
-                    <h2>Sobre edicion demo</h2>
-                    <p>No consume saldo ni requiere conexion con la API.</p>
+                    <h2>Sobre edición demo</h2>
+                    <p>No consume saldo ni requiere conexión con la API.</p>
                     <button id="open-pack-btn" class="button button-primary button-large" type="button">Abrir sobre demo</button>
                 </div>
             </div>
@@ -136,7 +136,7 @@
             <div class="feature-header">
                 <span class="eyebrow">INTERCAMBIOS</span>
                 <h1 id="market-title">Mercado de barajitas</h1>
-                <p>Aqui apareceran tus duplicados y las futuras ofertas recibidas mediante Socket.IO.</p>
+                <p>Aquí aparecerán tus duplicados y las futuras ofertas recibidas mediante Socket.IO.</p>
             </div>
             <div class="trade-container">
                 <section class="trade-panel">
@@ -153,8 +153,8 @@
                     </div>
                     <div id="incoming-offers-list" class="offer-placeholder">
                         <span aria-hidden="true">⇄</span>
-                        <h3>Sin ofertas todavia</h3>
-                        <p>Esta seccion se conectara cuando el profesor entregue las credenciales y eventos.</p>
+                        <h3>Sin ofertas todavía</h3>
+                        <p>Esta sección se conectará cuando el profesor entregue las credenciales y eventos.</p>
                     </div>
                 </section>
             </div>
@@ -164,8 +164,8 @@
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <footer>
-        <span>Programacion Orientada a la Web</span>
-        <span>Proyecto academico · Mundial 2026</span>
+        <span>Programación Orientada a la Web</span>
+        <span>Proyecto académico · Mundial 2026</span>
     </footer>
 
     <script src="js/state-manager.js?v=3"></script>

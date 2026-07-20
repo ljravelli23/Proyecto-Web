@@ -30,7 +30,7 @@ document.querySelector("#open-pack-btn").addEventListener("click", () => {
 	const pack = openDemoPack();
 	renderAll(filter.value);
 	renderPack(pack);
-	showToast("¡Sobre abierto! Las siete barajitas se agregaron a tu coleccion.");
+	showToast("¡Sobre abierto! Las siete barajitas se agregaron a tu colección.");
 });
 
 document.querySelector("#connect-btn").addEventListener("click", () => {
@@ -40,7 +40,7 @@ document.querySelector("#connect-btn").addEventListener("click", () => {
 		return;
 	}
 	showToast(
-		"API Key guardada. Cuando llegue el backend, ya estara lista para usar.",
+		"API Key guardada. Cuando llegue el backend, ya estará lista para usar.",
 	);
 });
 
