@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https://flagcdn.com https://upload.wikimedia.org; connect-src 'self' https://sticker-album-server-proyect-production.up.railway.app wss://sticker-album-server-proyect-production.up.railway.app https://es.wikipedia.org https://en.wikipedia.org; form-action 'self'">
     <meta name="description" content="Álbum virtual interactivo del Mundial 2026">
     <title>Mi Álbum Mundial 2026</title>
-    <link rel="stylesheet" href="css/styles.css?v=3">
+    <link rel="stylesheet" href="css/styles.css?v=6">
 </head>
 <body>
     <div class="page-glow page-glow-one" aria-hidden="true"></div>
@@ -23,7 +25,7 @@
         <div class="header-actions">
             <div class="api-control">
                 <label class="sr-only" for="api-key-input">API Key</label>
-                <input type="password" id="api-key-input" placeholder="API Key (próximamente)" autocomplete="off">
+                <input type="password" id="api-key-input" name="album-api-key" placeholder="Pega tu API Key" autocomplete="new-password" autocapitalize="off" spellcheck="false">
                 <button id="connect-btn" class="button button-secondary" type="button">Conectar</button>
             </div>
             <button id="demo-toggle-btn" class="button button-demo" type="button" aria-pressed="false">
@@ -124,8 +126,8 @@
                     <small>7 BARAJITAS</small>
                 </div>
                 <div class="pack-actions">
-                    <h2>Sobre edición demo</h2>
-                    <p>No consume saldo ni requiere conexión con la API.</p>
+                    <h2 id="pack-mode-title">Sobre edición demo</h2>
+                    <p id="pack-mode-copy">No consume saldo ni requiere conexión con la API.</p>
                     <button id="open-pack-btn" class="button button-primary button-large" type="button">Abrir sobre demo</button>
                 </div>
             </div>
@@ -149,7 +151,7 @@
                 <section class="trade-panel">
                     <div class="panel-heading">
                         <div><span class="eyebrow">EN TIEMPO REAL</span><h2>Ofertas recibidas</h2></div>
-                        <span class="live-badge">API pendiente</span>
+                        <span id="market-live-badge" class="live-badge">API pendiente</span>
                     </div>
                     <div id="incoming-offers-list" class="offer-placeholder">
                         <span aria-hidden="true">⇄</span>
@@ -168,10 +170,11 @@
         <span>Proyecto académico · Mundial 2026</span>
     </footer>
 
-    <script src="js/state-manager.js?v=3"></script>
-    <script src="js/api-client.js"></script>
-    <script src="js/socket-client.js"></script>
-    <script src="js/ui-renderer.js?v=3"></script>
-    <script src="js/app.js?v=3"></script>
+    <script src="js/state-manager.js?v=6"></script>
+    <script src="js/api-client.js?v=6"></script>
+    <script src="js/image-service.js?v=6"></script>
+    <script src="js/socket-client.js?v=6"></script>
+    <script src="js/ui-renderer.js?v=6"></script>
+    <script src="js/app.js?v=6"></script>
 </body>
 </html>

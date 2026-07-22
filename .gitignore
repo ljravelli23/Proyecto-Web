@@ -1,1 +1,27 @@
-# Por buenas practicas aunque no hace nada
+# Secretos y configuración local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Dependencias y artefactos
+node_modules/
+dist/
+build/
+coverage/
+tmp/
+requisitos-*.png
+**/requisitos-*.png
+/SECURITY.md
+
+# Archivos locales del sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log

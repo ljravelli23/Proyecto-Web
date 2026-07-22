@@ -1,77 +1,69 @@
-# ⚽ Mi Álbum Virtual - Mundial 2026
+# Mi Álbum Virtual - Mundial 2026
 
-> Proyecto académico para la materia **Programación Orientada a la Web (NRC: 26577)**.  
-> Profesor: Luis Fuentes.
-> Integrantes: José Berroterán, Luigi Ravelli y Javier García.
+Proyecto académico de **Programación Orientada a la Web (NRC 26577)**.
 
-## 📝 Descripción del Proyecto
+Integrantes: José Berroterán, Luigi Ravelli y Javier García.
 
-Esta aplicación web es un simulador interactivo del clásico álbum de barajitas del Mundial de Fútbol 2026. 
-Los usuarios pueden gestionar su colección personal, abrir sobres para conseguir nuevas figuritas y 
-negociar intercambios en tiempo real con otros grupos del salón, replicando la experiencia física del álbum 
-en un entorno digital.
+## Descripción
 
-El sistema se basa en una arquitectura **Cliente-Servidor**, donde el frontend (esta interfaz) consume una 
-API central y se comunica vía WebSockets para las transacciones en vivo.
+Aplicación web Mobile-First para consultar el álbum del Mundial 2026, abrir sobres de siete barajitas, pegar barajitas disponibles y gestionar el inventario de repetidas. Está construida con HTML5, CSS3 y JavaScript moderno, sin framework ni proceso de compilación.
 
-## 🛠️ Tecnologías Utilizadas
+## Funcionalidades implementadas
 
-- **HTML5 Semántico**: Estructura accesible y bien definida (`<header>`, `<nav>`, `<section>`, `<article>`, `<figure>`).
-- **CSS3**: Diseño responsivo con enfoque **Mobile-First** utilizando **Flexbox** y **CSS Grid**.
-- **JavaScript (ES6+)**: Lógica de negocio, manipulación del DOM (SPA) y consumo de APIs.
-- **REST API**: Para acciones transaccionales (apertura de sobres, consulta de estado).
-- **Socket.IO (CDN)**: Para la negociación en vivo de intercambios (ofertas y respuestas en tiempo real).
+- Álbum organizado por 48 selecciones y 12 barajitas por país.
+- Conexión con la API REST mediante el encabezado `x-api-key`.
+- Estadísticas de obtenidas, faltantes y copias disponibles.
+- Apertura de sobres reales y modo demo sin afectar la API.
+- Acción para pegar una barajita disponible en el álbum.
+- Inventario de repetidas.
+- Fotografías progresivas de jugadores mediante Wikimedia y banderas externas.
+- Interfaz responsive con navegación tipo SPA.
 
-## 📂 Estructura del Proyecto
-/mi-album-mundial/
-│
-├── index.html                  # Punto de entrada (SPA)
-├── README.md                   # Este archivo
-│
-├── /css/
-│   └── styles.css              # Estilos globales (Mobile-First)
-│
-├── /js/
-│   ├── app.js                  # Orquestador principal
-│   ├── api-client.js           # Llamadas a la API REST (con API Key)
-│   ├── socket-client.js        # Configuración y eventos de Socket.IO
-│   ├── state-manager.js        # Estado global del álbum (memoria RAM)
-│   └── ui-renderer.js          # Renderizado dinámico del DOM
-│
-└── /assets/
-    └── /img/
-        ├── /escudos/           # Imágenes locales de los escudos
-        └── /jugadores/         # Imágenes locales de los jugadores
+## Seguridad de la API Key
 
+La URL base y la documentación de la API son públicas y pueden permanecer en el repositorio. La **API Key del grupo es privada** y nunca debe escribirse en el código, README, commits, issues o capturas.
 
-## 🔐 Autenticación (API Key)
+- La clave se introduce manualmente en el navegador.
+- Se mantiene únicamente en memoria mientras la página está abierta y conectada.
+- Se elimina al desconectar, cambiar a la demo o recargar la página.
+- No se guarda en `localStorage`, `sessionStorage`, cookies ni archivos del proyecto.
+- Se envía solamente al servidor oficial mediante el encabezado `x-api-key`.
 
-Para identificar a cada grupo, la aplicación solicita una **API Key** al iniciar sesión.
+Importante: al ser un frontend estático, una clave usada por el navegador puede verse en las herramientas de desarrollo. Para ocultarla completamente sería necesario un backend propio que actúe como intermediario.
 
-- La clave se ingresa manualmente en el campo del `<header>`.
-- Se almacena de forma segura en **`sessionStorage`** para persistir solo durante la sesión activa (desaparece al cerrar la pestaña).
-- Se envía en los **headers** de cada petición HTTP (`Authorization: Bearer {apiKey}`) y en el **handshake** de Socket.IO.
+## Ejecución local
 
-## 🎯 Funcionalidades Principales
+Debe servirse por HTTP; no conviene abrir `index.html` directamente.
 
-1.  **📖 Visualización del Álbum**
-    - Organizado por países participantes (12 barajitas por país: 1 escudo + 11 jugadores).
-    - Diferenciación visual clara entre barajitas **poseídas**, **faltantes** (siluetas) y **repetidas** (destacadas en amarillo/duplicado).
+```powershell
+python -m http.server 8000 --bind 127.0.0.1
+```
 
-2.  **🎁 Apertura de Sobres**
-    - Botón interactivo para solicitar un sobre a la API.
-    - Cada sobre contiene **7 barajitas aleatorias**.
-    - Animación visual que muestra las figuras obtenidas antes de integrarlas al inventario general.
+Después abre `http://127.0.0.1:8000/`.
 
-3.  **🔄 Mercado de Intercambios (Tiempo Real)**
-    - Visualización del inventario de barajitas repetidas disponibles.
-    - Propuesta de intercambios a otros grupos seleccionando una repetida propia a cambio de una necesitada.
-    - Negociación en vivo: Recepción y respuesta (Aceptar/Rechazar) de ofertas entrantes mediante **Socket.IO**.
+No requiere `npm install`, Node.js ni Next.js.
 
-## 🚀 Cómo Ejecutar la Aplicación
+## Estructura
 
-Este proyecto es 100% **Frontend estático**. No requiere instalación de Node.js ni dependencias complejas.
+```text
+index.html
+css/
+  styles.css
+js/
+  app.js
+  api-client.js
+  image-service.js
+  socket-client.js
+  state-manager.js
+  ui-renderer.js
+```
 
-1.  Clona este repositorio:
-    ```bash
-    git clone [URL_DEL_REPOSITORIO]
+## Pendiente
+
+- Implementar Socket.IO y los eventos del mercado en tiempo real.
+- Crear propuestas de intercambio desde la interfaz.
+- Aceptar, rechazar y cancelar intercambios.
+- Añadir pruebas automatizadas y validación de accesibilidad.
+- Definir una estrategia estable para las imágenes de todos los jugadores.
+
+Consulta [SECURITY.md](SECURITY.md) antes de publicar cambios.

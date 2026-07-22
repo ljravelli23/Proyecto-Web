@@ -1,4 +1,4 @@
-const teams = [
+const demoTeams = [
 	{
 		id: "ARG",
 		name: "Argentina",
@@ -85,6 +85,8 @@ const teams = [
 	},
 ];
 
+let teams = demoTeams;
+
 function makeTeam(teamId, teamName, names) {
 	return names.map((name, index) => ({
 		id: `${teamId}-${String(index).padStart(2, "0")}`,
@@ -106,8 +108,14 @@ function makeTeam(teamId, teamName, names) {
 }
 
 const AppState = {
-	apiKey: sessionStorage.getItem("apiKey") || "",
+	apiKey: "",
+	dataMode: "empty",
 	demoEnabled: false,
+	apiConnected: false,
+	group: null,
+	apiStats: null,
+	apiDuplicates: [],
+	apiTrades: [],
 	myCollection: {},
 	duplicates: [],
 	missing: [],
@@ -151,7 +159,14 @@ const demoCounts = {
 };
 
 function enableDemoData() {
+	teams = demoTeams;
+	AppState.dataMode = "demo";
 	AppState.demoEnabled = true;
+	AppState.apiConnected = false;
+	AppState.group = null;
+	AppState.apiStats = null;
+	AppState.apiDuplicates = [];
+	AppState.apiTrades = [];
 	AppState.lastPack = [];
 	AppState.myCollection = Object.fromEntries(
 		Object.entries(demoCounts).map(([id, count]) => [id, { id, count }]),
@@ -159,6 +174,7 @@ function enableDemoData() {
 }
 
 function disableDemoData() {
+	AppState.dataMode = "empty";
 	AppState.demoEnabled = false;
 	AppState.myCollection = {};
 	AppState.lastPack = [];
@@ -166,20 +182,23 @@ function disableDemoData() {
 
 function setApiKey(apiKey) {
 	AppState.apiKey = apiKey.trim();
-	if (AppState.apiKey) {
-		sessionStorage.setItem("apiKey", AppState.apiKey);
-	} else {
-		sessionStorage.removeItem("apiKey");
-	}
 	return AppState.apiKey;
 }
 
 function clearApiKey() {
 	AppState.apiKey = "";
-	sessionStorage.removeItem("apiKey");
 }
 
 function getStickerStatus(stickerId) {
+	if (AppState.dataMode === "api") {
+		const sticker = teams
+			.flatMap((team) => team.stickers)
+			.find((item) => item.id === stickerId);
+		if (!sticker) return "missing";
+		if (sticker.isStuck || sticker.inventoryCount > 0 || sticker.apiStatus !== "MISSING") return "owned";
+		return "missing";
+	}
+
 	const item = AppState.myCollection[stickerId];
 	if (!item) return "missing";
 	if (item.count > 1) return "duplicate";
@@ -187,6 +206,18 @@ function getStickerStatus(stickerId) {
 }
 
 function getCollectionStats() {
+	if (AppState.dataMode === "api" && AppState.apiStats) {
+		const all = teams.flatMap((team) => team.stickers);
+		const obtained = all.filter((sticker) => getStickerStatus(sticker.id) !== "missing").length;
+		return {
+			total: AppState.apiStats.totalCardsInAlbum || 0,
+			owned: obtained,
+			missing: Math.max(0, (AppState.apiStats.totalCardsInAlbum || all.length) - obtained),
+			duplicates: AppState.apiStats.totalDuplicates || 0,
+			teams: teams.length,
+		};
+	}
+
 	const all = teams.flatMap((team) => team.stickers);
 	const owned = all.filter(
 		(sticker) => AppState.myCollection[sticker.id],
@@ -204,6 +235,8 @@ function getCollectionStats() {
 }
 
 function getDuplicates() {
+	if (AppState.dataMode === "api") return AppState.apiDuplicates;
+
 	const stickersById = new Map(
 		teams
 			.flatMap((team) => team.stickers)
@@ -212,6 +245,106 @@ function getDuplicates() {
 	return Object.values(AppState.myCollection)
 		.filter((item) => item.count > 1)
 		.map((item) => ({ ...stickersById.get(item.id), count: item.count }));
+}
+
+function applyApiSnapshot(snapshot) {
+	const pages = snapshot.album?.pages || [];
+	const palette = [
+		"105, 190, 235",
+		"255, 220, 40",
+		"238, 59, 59",
+		"40, 184, 105",
+		"149, 117, 205",
+		"255, 139, 61",
+	];
+
+	teams = pages.map((page, index) => ({
+		id: page.countryCode,
+		name: page.country,
+		flag: page.countryCode,
+		group: page.wcGroup,
+		rgb: palette[index % palette.length],
+		stickers: (page.stickers || []).map((sticker) => ({
+			id: sticker.id || sticker.code,
+			code: sticker.code,
+			teamId: page.countryCode,
+			teamName: page.country,
+			name: sticker.name,
+			number: sticker.number,
+			role: sticker.role,
+			apiStatus: sticker.status,
+			quantity: sticker.quantity || 0,
+			duplicatesCount: sticker.duplicatesCount || 0,
+			isStuck: Boolean(sticker.isStuck),
+		})),
+	}));
+
+	const stickersByCode = new Map(
+		teams.flatMap((team) => team.stickers).map((sticker) => [sticker.code, sticker]),
+	);
+
+	AppState.apiDuplicates = (snapshot.duplicates?.duplicates || []).map((item) => ({
+		...(stickersByCode.get(item.code) || {
+			id: item.code,
+			code: item.code,
+			name: item.name,
+			teamId: item.code?.split("-")[0],
+			teamName: item.country,
+			role: "Barajita",
+		}),
+		count: item.duplicatesAvailable,
+	}));
+
+	AppState.apiDuplicates.forEach((item) => {
+		const sticker = stickersByCode.get(item.code);
+		if (!sticker) return;
+		sticker.inventoryCount = item.count;
+		sticker.quantity = Math.max(sticker.quantity || 0, item.count || 0);
+		if (!sticker.isStuck && item.count > 0) sticker.apiStatus = "AVAILABLE";
+	});
+
+	AppState.dataMode = "api";
+	AppState.demoEnabled = false;
+	AppState.apiConnected = true;
+	AppState.group = snapshot.group?.group || null;
+	AppState.apiStats = snapshot.album?.stats || null;
+	AppState.apiTrades = snapshot.trades?.trades || snapshot.trades?.data || [];
+	AppState.lastPack = [];
+	AppState.myCollection = Object.fromEntries(
+		teams.flatMap((team) => team.stickers).map((sticker) => [
+			sticker.id,
+			{
+				id: sticker.id,
+				count: sticker.inventoryCount || (sticker.isStuck ? 1 : 0),
+			},
+		]),
+	);
+}
+
+function normalizeApiPack(pack) {
+	return (pack || []).map((sticker) => ({
+		id: sticker.id || sticker.code,
+		code: sticker.code,
+		teamId: sticker.countryCode,
+		teamName: sticker.country,
+		name: sticker.name,
+		number: sticker.number,
+		role: sticker.role,
+		packStatus: sticker.isNewInAlbum ? "owned" : "duplicate",
+	}));
+}
+
+function disconnectApi() {
+	teams = demoTeams;
+	AppState.dataMode = "empty";
+	AppState.apiConnected = false;
+	AppState.group = null;
+	AppState.apiStats = null;
+	AppState.apiDuplicates = [];
+	AppState.apiTrades = [];
+	AppState.myCollection = {};
+	AppState.lastPack = [];
+	clearApiKey();
 }
 
 function openDemoPack() {
