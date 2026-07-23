@@ -147,6 +147,40 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .button-large { min-height: 54px; padding-inline: 28px; font-size: 16px; }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; box-shadow: 0 0 12px currentColor; }
 
+.pack-actions-result {
+    margin: 24px 0;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(200,244,61,.05);
+    text-align: center;
+}
+
+.album-actions-result {
+    margin: 24px 0 32px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: rgba(200,244,61,.05);
+    text-align: center;
+}
+
+.stuck-message {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 4px 12px;
+    border-radius: 8px;
+    background: rgba(72,217,255,.15);
+    color: var(--cyan);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    white-space: nowrap;
+}
+
 .main-nav {
     position: sticky;
     top: 0;

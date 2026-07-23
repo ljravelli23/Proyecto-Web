@@ -41,8 +41,20 @@ function renderAlbum(selectedTeam) {
         return;
     }
 
+    // Calcular códigos de barajitas disponibles para pegar (no pegadas pero con inventario)
+    const availableCodes = teams
+        .flatMap(team => team.stickers)
+        .filter(sticker => !sticker.isStuck && (sticker.inventoryCount > 0 || (AppState.myCollection[sticker.id]?.count || 0) > 1))
+        .map(sticker => sticker.code || sticker.id);
+
+    const stickAllButton = AppState.dataMode === 'api' && availableCodes.length > 0
+        ? `<div class="album-actions-result">
+            <button class="button button-primary button-large" type="button" data-stick-all="${availableCodes.join(',')}">Pegar todas las disponibles (${availableCodes.length})</button>
+           </div>`
+        : '';
+
     const visibleTeams = selectedTeam === 'all' ? teams : teams.filter(team => team.id === selectedTeam);
-    container.innerHTML = visibleTeams.map(team => {
+    container.innerHTML = stickAllButton + visibleTeams.map(team => {
         const collected = team.stickers.filter(sticker => {
             const status = getStickerStatus(sticker.id);
             return AppState.dataMode === 'api' ? status === 'owned' : status !== 'missing';
@@ -59,7 +71,24 @@ function renderAlbum(selectedTeam) {
 
 function renderPack(pack) {
     const container = document.querySelector('#pack-result');
-    container.innerHTML = pack.map(sticker => {
+    
+    // Calcular códigos de barajitas nuevas (no pegadas)
+    const newCodes = pack
+        .filter(sticker => {
+            const catalogSticker = teams
+                .flatMap(team => team.stickers)
+                .find(item => item.code === sticker.code || item.id === sticker.id);
+            return catalogSticker && !catalogSticker.isStuck;
+        })
+        .map(sticker => sticker.code || sticker.id);
+    
+    const stickAllButton = AppState.dataMode === 'api' && newCodes.length > 0
+        ? `<div class="pack-actions-result">
+            <button class="button button-primary button-large" type="button" data-stick-all="${newCodes.join(',')}">Pegar todas las nuevas (${newCodes.length})</button>
+           </div>`
+        : '';
+    
+    container.innerHTML = stickAllButton + pack.map(sticker => {
         const team = teams.find(item => item.id === sticker.teamId) || { flag: sticker.teamId, rgb: '105, 190, 235' };
         const catalogSticker = team.stickers?.find(item => item.code === sticker.code || item.id === sticker.id);
         return stickerCard({ ...catalogSticker, ...sticker, inventoryCount: catalogSticker?.inventoryCount || 0 }, team, true);
@@ -77,17 +106,24 @@ function stickerCard(sticker, team, revealOwned = false) {
     const initials = sticker.name.split(' ').filter(Boolean).slice(0, 2).map(word => word[0]).join('');
     const isCrest = sticker.number === 0 || String(sticker.role).toLowerCase() === 'escudo';
     const canStick = AppState.dataMode === 'api' && !sticker.isStuck && inventoryCount > 0;
+    const isStuck = sticker.isStuck || (AppState.dataMode === 'api' && getStickerStatus(sticker.id) === 'owned' && !inventoryCount);
     const visual = isCrest
         ? `<span class="crest-symbol">${teamFlagMarkup(team, 'crest-flag')}</span>`
         : status === 'missing'
             ? `<span class="sticker-number">${String(sticker.number).padStart(2,'0')}</span><span class="sticker-initials">?</span>`
             : `<span class="sticker-number photo-number">${String(sticker.number).padStart(2,'0')}</span><span class="sticker-initials photo-fallback">${safe(initials)}</span><img class="player-photo" data-player-photo="${safe(sticker.name)}" data-player-country="${safe(sticker.teamName || team.name)}" alt="Foto de ${safe(sticker.name)}">`;
+    
+    // Mensaje de ayuda si ya está pegada
+    const stickButton = canStick 
+        ? `<button class="stick-button" type="button" data-stick-code="${safe(sticker.code || sticker.id)}" aria-label="Pegar ${safe(sticker.name)} en el álbum">Pegar</button>`
+        : (isStuck ? `<span class="stuck-message">Ya pegada</span>` : '');
+    
     return `<figure class="sticker ${status}${canStick ? ' can-stick' : ''}" style="--team-rgb:${team.rgb}" title="${safe(sticker.name)}">
         ${status === 'duplicate' || inventoryCount > 0 ? `<span class="duplicate-chip">x${inventoryCount || count}</span>` : ''}
-        ${status === 'owned' ? '<span class="owned-chip">✓</span>' : ''}
+        ${status === 'owned' || isStuck ? '<span class="owned-chip">✓</span>' : ''}
         <div class="sticker-visual">
             ${visual}
-            ${canStick ? `<button class="stick-button" type="button" data-stick-code="${safe(sticker.code || sticker.id)}" aria-label="Pegar ${safe(sticker.name)} en el álbum">Pegar</button>` : ''}
+            ${stickButton}
         </div>
         <figcaption><strong>${status === 'missing' ? `Barajita ${String(sticker.number).padStart(2,'0')}` : safe(sticker.name)}</strong><span>${status === 'missing' ? 'Faltante' : safe(sticker.role)}</span></figcaption>
     </figure>`;
@@ -99,7 +135,8 @@ function renderDuplicates() {
     setText('duplicate-badge', duplicates.length);
     container.innerHTML = duplicates.length ? duplicates.map(sticker => {
         const team = teams.find(item => item.id === sticker.teamId);
-        const stickAction = AppState.dataMode === 'api' && !sticker.isStuck && sticker.count > 0
+        const isStuck = sticker.isStuck || (AppState.dataMode === 'api' && getStickerStatus(sticker.id) === 'owned' && !sticker.inventoryCount);
+        const stickAction = AppState.dataMode === 'api' && !isStuck && sticker.count > 0
             ? `<button class="mini-stick-button" type="button" data-stick-code="${safe(sticker.code || sticker.id)}" aria-label="Pegar ${safe(sticker.name)} en el álbum">Pegar</button>`
             : AppState.dataMode === 'api' ? '<span class="stuck-label">Pegada</span>' : '';
         return `<article class="duplicate-row"><span class="mini-flag">${teamFlagMarkup(team || { id: sticker.teamId, name: sticker.teamName, flag: sticker.teamId })}</span><div><strong>${safe(sticker.name)}</strong><small>${safe(team?.name || sticker.teamName)} · ${safe(sticker.role)}</small></div>${stickAction}<b>x${sticker.count}</b></article>`;

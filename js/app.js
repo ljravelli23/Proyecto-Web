@@ -16,6 +16,12 @@ document.addEventListener("click", async (event) => {
 		return;
 	}
 
+	const stickAllButton = event.target.closest("[data-stick-all]");
+	if (stickAllButton) {
+		await handleStickAllCards(stickAllButton);
+		return;
+	}
+
 	const navButton = event.target.closest("[data-view]");
 	if (navButton) switchView(navButton.dataset.view);
 
@@ -68,7 +74,7 @@ document.querySelector("#open-pack-btn").addEventListener("click", async () => {
 document.querySelector("#connect-btn").addEventListener("click", async () => {
 	if (AppState.apiConnected) {
 		disconnectApi();
-		apiKeyInput.value = "";
+		apiKeyInput.value = "WC2026_GRP3_D1BCEC3A0CA0B697";
 		populateTeamFilter();
 		filter.value = "all";
 		renderAll();
@@ -76,7 +82,9 @@ document.querySelector("#connect-btn").addEventListener("click", async () => {
 		return;
 	}
 
-	const savedKey = setApiKey(apiKeyInput.value);
+	// Usar la API key del input o la predeterminada si está vacía
+	const apiKey = apiKeyInput.value.trim() || "WC2026_GRP3_D1BCEC3A0CA0B697";
+	const savedKey = setApiKey(apiKey);
 	if (!savedKey) {
 		showToast("Pega una API Key antes de conectar.");
 		return;
@@ -88,7 +96,7 @@ document.querySelector("#connect-btn").addEventListener("click", async () => {
 	try {
 		const snapshot = await loadApiSnapshot();
 		applyApiSnapshot(snapshot);
-		apiKeyInput.value = "";
+		apiKeyInput.value = "WC2026_GRP3_D1BCEC3A0CA0B697";
 		populateTeamFilter();
 		filter.value = "all";
 		document.querySelector("#pack-result").innerHTML = "";
@@ -96,7 +104,7 @@ document.querySelector("#connect-btn").addEventListener("click", async () => {
 		showToast(`Conectado como ${AppState.group?.name || "grupo autenticado"}.`);
 	} catch (error) {
 		disconnectApi();
-		apiKeyInput.value = "";
+		apiKeyInput.value = "WC2026_GRP3_D1BCEC3A0CA0B697";
 		renderAll();
 		showToast(error.message);
 	} finally {
@@ -130,6 +138,22 @@ function toggleDemo() {
 async function handleStickCard(button) {
 	if (AppState.dataMode !== "api" || button.disabled) return;
 	const cardCode = button.dataset.stickCode;
+	
+	// Verificar si la barajita ya está pegada
+	const sticker = teams
+		.flatMap((team) => team.stickers)
+		.find((item) => item.code === cardCode || item.id === cardCode);
+	
+	if (sticker && sticker.isStuck) {
+		showToast(`La barajita "${sticker.name}" ya está pegada en el álbum. No se puede pegar otra vez.`);
+		return;
+	}
+	
+	if (sticker && sticker.inventoryCount <= 0) {
+		showToast(`No tienes copias disponibles de "${sticker.name}" para pegar.`);
+		return;
+	}
+	
 	const originalText = button.textContent;
 	button.disabled = true;
 	button.textContent = "Pegando…";
@@ -141,7 +165,68 @@ async function handleStickCard(button) {
 		populateTeamFilter();
 		filter.value = "all";
 		renderAll();
-		showToast(`¡Barajita ${cardCode} pegada en el álbum!`);
+		showToast(`¡Barajita "${sticker.name}" pegada en el álbum!`);
+	} catch (error) {
+		button.disabled = false;
+		button.textContent = originalText;
+		showToast(error.message);
+	}
+}
+
+async function handleStickAllCards(button) {
+	if (AppState.dataMode !== "api" || button.disabled) return;
+	
+	const packCodes = button.dataset.stickAll.split(",");
+	const availableCodes = packCodes.filter(code => {
+		const sticker = teams
+			.flatMap((team) => team.stickers)
+			.find((item) => item.code === code || item.id === code);
+		return sticker && !sticker.isStuck && sticker.inventoryCount > 0;
+	});
+	
+	const alreadyStuckCount = packCodes.length - availableCodes.length;
+	
+	if (availableCodes.length === 0) {
+		if (alreadyStuckCount > 0) {
+			showToast(`Todas las barajitas ya están pegadas en el álbum.`);
+		} else {
+			showToast("No hay barajitas disponibles para pegar.");
+		}
+		return;
+	}
+	
+	const originalText = button.textContent;
+	button.disabled = true;
+	button.textContent = "Pegando…";
+	
+	let stuckCount = 0;
+	let skippedCount = 0;
+	
+	try {
+		for (const code of availableCodes) {
+			try {
+				await stickApiCard(code);
+				stuckCount++;
+			} catch (error) {
+				skippedCount++;
+				console.error(`Error pegando ${code}:`, error);
+			}
+		}
+		
+		const snapshot = await loadApiSnapshot();
+		applyApiSnapshot(snapshot);
+		populateTeamFilter();
+		filter.value = "all";
+		renderAll();
+		
+		let message = `✅ ¡${stuckCount} barajitas pegadas en el álbum!`;
+		if (alreadyStuckCount > 0) {
+			message += ` (${alreadyStuckCount} ya estaban pegadas)`;
+		}
+		if (skippedCount > 0) {
+			message += ` (${skippedCount} no se pudieron pegar)`;
+		}
+		showToast(message);
 	} catch (error) {
 		button.disabled = false;
 		button.textContent = originalText;
