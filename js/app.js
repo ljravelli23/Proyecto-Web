@@ -1,6 +1,7 @@
 const filter = document.querySelector("#team-filter");
 const apiKeyInput = document.querySelector("#api-key-input");
 const toast = document.querySelector("#toast");
+import { environment } from "./environment.js";
 let toastTimer;
 
 // Elimina claves que versiones anteriores pudieran haber guardado en el navegador.
@@ -74,7 +75,7 @@ document.querySelector("#open-pack-btn").addEventListener("click", async () => {
 document.querySelector("#connect-btn").addEventListener("click", async () => {
 	if (AppState.apiConnected) {
 		disconnectApi();
-		apiKeyInput.value = "WC2026_GRP3_D1BCEC3A0CA0B697";
+		apiKeyInput.value = environment.ApiKey;
 		populateTeamFilter();
 		filter.value = "all";
 		renderAll();
@@ -83,7 +84,7 @@ document.querySelector("#connect-btn").addEventListener("click", async () => {
 	}
 
 	// Usar la API key del input o la predeterminada si está vacía
-	const apiKey = apiKeyInput.value.trim() || "WC2026_GRP3_D1BCEC3A0CA0B697";
+	const apiKey = apiKeyInput.value.trim() || environment.ApiKey;
 	const savedKey = setApiKey(apiKey);
 	if (!savedKey) {
 		showToast("Pega una API Key antes de conectar.");
@@ -96,7 +97,7 @@ document.querySelector("#connect-btn").addEventListener("click", async () => {
 	try {
 		const snapshot = await loadApiSnapshot();
 		applyApiSnapshot(snapshot);
-		apiKeyInput.value = "WC2026_GRP3_D1BCEC3A0CA0B697";
+		apiKeyInput.value = environment.ApiKey;
 		populateTeamFilter();
 		filter.value = "all";
 		document.querySelector("#pack-result").innerHTML = "";
@@ -104,7 +105,7 @@ document.querySelector("#connect-btn").addEventListener("click", async () => {
 		showToast(`Conectado como ${AppState.group?.name || "grupo autenticado"}.`);
 	} catch (error) {
 		disconnectApi();
-		apiKeyInput.value = "WC2026_GRP3_D1BCEC3A0CA0B697";
+		apiKeyInput.value = environment.ApiKey;
 		renderAll();
 		showToast(error.message);
 	} finally {

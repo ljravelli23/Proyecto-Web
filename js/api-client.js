@@ -1,4 +1,6 @@
-const API_BASE_URL = "https://sticker-album-server-proyect-production.up.railway.app";
+import { environment } from "./environment.js";
+
+const API_BASE_URL = environment.ApiBaseUrl;
 
 async function apiRequest(path, options = {}) {
 	const { method = "GET", body, apiKey = AppState.apiKey } = options;
